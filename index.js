@@ -14,11 +14,12 @@ app.get('/', (req, res) => {
   res.send('n8n Proxy Server is running 🚀');
 });
 
-// 워크플로우 생성
+// 워크플로우 생성 (POST /proxy/create)
 app.post('/proxy/create', async (req, res) => {
   const { n8nUrl, apiKey, workflow } = req.body;
   try {
-    const response = await fetch(`${n8nUrl}/api/v1/workflows`, {
+    const cleanedUrl = n8nUrl.replace(/\/+$/, ""); // 끝에 슬래시 제거
+    const response = await fetch(`${cleanedUrl}/api/v1/workflows`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,18 +34,19 @@ app.post('/proxy/create', async (req, res) => {
   }
 });
 
-// 워크플로우 목록 조회
+// 워크플로우 목록 조회 (POST /proxy/list)
 app.post('/proxy/list', async (req, res) => {
   const { n8nUrl, apiKey } = req.body;
   try {
-    const response = await fetch(`${n8nUrl}/api/v1/workflows`, {
+    const cleanedUrl = n8nUrl.replace(/\/+$/, ""); // 끝에 슬래시 제거
+    const response = await fetch(`${cleanedUrl}/api/v1/workflows`, {
       method: 'GET',
       headers: {
         'X-N8N-API-KEY': apiKey,
       }
     });
     const data = await response.json();
-    res.status(response.status).json(data);
+    res.status(response.status).json({ data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
