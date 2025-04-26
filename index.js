@@ -3,13 +3,18 @@ const cors = require('cors');
 const fetch = require('node-fetch');
 
 const app = express();
+
+// CORS 허용
 app.use(cors());
+// JSON 파싱
 app.use(express.json());
 
+// 테스트용 루트
 app.get('/', (req, res) => {
   res.send('n8n Proxy Server is running 🚀');
 });
 
+// 워크플로우 생성
 app.post('/proxy/create', async (req, res) => {
   const { n8nUrl, apiKey, workflow } = req.body;
   try {
@@ -28,6 +33,7 @@ app.post('/proxy/create', async (req, res) => {
   }
 });
 
+// 워크플로우 목록 조회
 app.post('/proxy/list', async (req, res) => {
   const { n8nUrl, apiKey } = req.body;
   try {
@@ -44,5 +50,6 @@ app.post('/proxy/list', async (req, res) => {
   }
 });
 
+// 서버 시작
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Proxy server listening on port ${PORT}`));
