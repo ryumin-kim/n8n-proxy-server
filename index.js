@@ -4,26 +4,21 @@ const fetch = require('node-fetch');
 
 const app = express();
 
-// CORS 허용
 app.use(cors());
-// JSON 파싱
 app.use(express.json());
 
-// 루트 확인용
 app.get('/', (req, res) => {
-  res.send('n8n Proxy Server is running 🚀');
+  res.send('n8n List/Delete Proxy is running 🚀');
 });
 
-// 워크플로우 목록 조회 (POST /proxy/list)
+// 📋 워크플로우 목록 조회
 app.post('/proxy/list', async (req, res) => {
   const { n8nUrl, apiKey } = req.body;
   try {
-    const cleanedUrl = n8nUrl.replace(/\/+$/, ""); // 끝에 슬래시 제거
+    const cleanedUrl = n8nUrl.replace(/\/+$/, "");
     const response = await fetch(`${cleanedUrl}/api/v1/workflows`, {
       method: 'GET',
-      headers: {
-        'X-N8N-API-KEY': apiKey,
-      }
+      headers: { 'X-N8N-API-KEY': apiKey },
     });
     const data = await response.json();
     res.status(response.status).json({ data });
@@ -32,6 +27,20 @@ app.post('/proxy/list', async (req, res) => {
   }
 });
 
-// 서버 시작
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Proxy server listening on port ${PORT}`));
+// 🗑️ 워크플로우 삭제
+app.post('/proxy/delete', async (req, res) => {
+  const { n8nUrl, apiKey, id } = req.body;
+  try {
+    const cleanedUrl = n8nUrl.replace(/\/+$/, "");
+    const response = await fetch(`${cleanedUrl}/api/v1/workflows/${id}`, {
+      method: 'DELETE',
+      headers: { 'X-N8N-API-KEY': apiKey },
+    });
+    res.status(response.status).json({ message: 'Deleted', status: response.status });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`List/Delete Proxy running on port ${PORT}`));
